@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MediSchedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg2:#f1f7fa;--tx:#14262e;--mu:#51656e;--bl:#1a5fb4;--tl:#0f8b8d;--bd:#d3e0e6;--ur:#b42318;--hi:#b25e09;--no:#0f6b4f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a1f;--bg2:#16262d;--tx:#e6f0f3;--mu:#9fb5be;--bl:#7db2ff;--tl:#4fd1c5;--bd:#2a3f48;--ur:#ff8a7a;--hi:#f5b25a;--no:#6fdcb0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1a1f;--bg2:#16262d;--tx:#e6f0f3;--mu:#9fb5be;--bl:#7db2ff;--tl:#4fd1c5;--bd:#2a3f48;--ur:#ff8a7a;--hi:#f5b25a;--no:#6fdcb0;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.55 'Atkinson Hyperlegible',system-ui,sans-serif}
+a{color:var(--bl)}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);border-bottom:1px solid var(--bd);z-index:5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+nav{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;padding:10px 16px;max-width:1000px;margin:auto}
+nav b{font-size:20px;color:var(--bl);margin-right:auto;cursor:pointer}
+nav b i{color:var(--tl);font-style:normal}
+nav a{text-decoration:none;color:var(--tx);padding:6px 2px;cursor:pointer;border-bottom:2px solid transparent}
+nav a.on,nav a:hover{border-color:var(--tl)}
+main{max-width:1000px;margin:auto;padding:20px 16px 40px}
+h1{font-size:clamp(28px,6vw,44px);line-height:1.15;margin:0 0 12px}
+h2{font-size:24px;margin:28px 0 10px}h3{margin:0 0 4px;font-size:18px}
+.sub{color:var(--mu);max-width:60ch}
+.btn{display:inline-block;background:var(--bl);color:#fff;border:0;border-radius:8px;padding:10px 18px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+:root:not([data-theme="light"]) .btn{color:#0f1a1f}
+.btn.alt{background:transparent;color:var(--bl);border:1.5px solid var(--bl)}
+.btn.sm{padding:4px 10px;font-size:14px}.btn.red{background:var(--ur)}
+.btn:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--tl);outline-offset:2px}
+.emerg{background:#fdecea;color:#7a1d12;border-left:5px solid var(--ur);padding:10px 14px;border-radius:6px;margin:14px 0}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .emerg{background:#3a1c18;color:#ffd7d0}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.card{border:1px solid var(--bd);border-radius:10px;padding:14px;background:var(--bg2)}
+.stat{font-size:32px;font-weight:700;color:var(--bl);line-height:1.1}
+label{display:block;font-weight:700;margin:12px 0 4px}
+input,select{width:100%;max-width:420px;padding:9px 10px;border:1.5px solid var(--bd);border-radius:8px;font:inherit;background:var(--bg);color:var(--tx)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.row input,.row select{width:auto;min-width:150px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--bd);font-size:15px;vertical-align:top}
+th{background:var(--bg2)}
+.pill{display:inline-block;border-radius:20px;padding:1px 10px;font-size:14px;font-weight:700;border:1.5px solid currentColor}
+.Urgent{color:var(--ur)}.High{color:var(--hi)}.Normal{color:var(--no)}
+.slots{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.slot{padding:8px 14px;border:1.5px solid var(--tl);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;cursor:pointer}
+.slot.sel{background:var(--tl);color:#fff}.slot:disabled{opacity:.45;text-decoration:line-through;cursor:not-allowed;border-color:var(--bd)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:8px;z-index:20;max-width:90%}
+.empty{text-align:center;color:var(--mu);padding:28px;border:1.5px dashed var(--bd);border-radius:10px}
+.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.steps li{counter-increment:s;border-left:4px solid var(--tl);padding-left:12px}
+.steps li::before{content:"Step " counter(s);display:block;font-weight:700;color:var(--tl)}
+footer{border-top:1px solid var(--bd);padding:18px 16px;color:var(--mu);font-size:14px;text-align:center}
+.err{color:var(--ur);font-size:14px;margin-top:4px}
+</style>
+</head>
+<body>
+<header><nav id="nav"></nav></header>
+<main id="app"></main>
+<footer>MediSchedule is an educational demonstration with fictional data. It is not certified for real clinical use.<br>Contact: help@medischedule.example · +00 000 000 0000</footer>
+<script>
+const PR={Urgent:0,High:1,Normal:2};
+const SPEC=['General Medicine','Cardiology','Pediatrics','Dermatology','Orthopedics'];
+const HOSP=['City General Hospital','Lakeside Medical Centre'];
+const DOCS=[
+{id:1,name:'Dr. Asha Rao',spec:'General Medicine',hosp:HOSP[0],qual:'MBBS, MD',exp:12,fee:400,days:[1,2,3,4,5],slots:['09:00','09:30','10:00','10:30','11:00'],active:true},
+{id:2,name:'Dr. Vikram Shah',spec:'Cardiology',hosp:HOSP[0],qual:'MBBS, DM Cardiology',exp:18,fee:900,days:[1,3,5],slots:['10:00','10:30','11:00','11:30'],active:true},
+{id:3,name:'Dr. Meera Nair',spec:'Pediatrics',hosp:HOSP[1],qual:'MBBS, DCH',exp:9,fee:500,days:[2,4,6],slots:['09:00','09:30','10:00','10:30'],active:true},
+{id:4,name:'Dr. Imran Khan',spec:'Dermatology',hosp:HOSP[1],qual:'MBBS, MD Dermatology',exp:7,fee:600,days:[1,2,4],slots:['14:00','14:30','15:00','15:30'],active:true},
+{id:5,name:'Dr. Lena Joseph',spec:'Orthopedics',hosp:HOSP[0],qual:'MBBS, MS Ortho',exp:15,fee:800,days:[2,3,5],slots:['13:00','13:30','14:00','14:30'],active:true}];
+const iso=d=>{d=new Date(d);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const addD=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+function seed(){return{users:[
+{id:1,name:'Demo Patient',email:'patient@demo.test',pw:'Patient@123',role:'PATIENT'},
+{id:2,name:'Dr. Asha Rao',email:'doctor@demo.test',pw:'Doctor@123',role:'DOCTOR',doctorId:1},
+{id:3,name:'Demo Admin',email:'admin@demo.test',pw:'Admin@123',role:'ADMIN'},
+{id:4,name:'Sample Patient Two',email:'patient2@demo.test',pw:'Patient@123',role:'PATIENT'}],
+docs:DOCS,appts:[
+{id:1001,pid:1,did:1,date:addD(1),time:'09:00',pri:'Normal',st:'CONFIRMED',created:Date.now()-86400000,reason:''},
+{id:1002,pid:4,did:1,date:addD(1),time:'09:30',pri:'Urgent',st:'PENDING',created:Date.now()-3600000,reason:''}],
+audit:[],nid:1003,uid:5,session:null}}
+let S;try{S=JSON.parse(localStorage.getItem('ms1'))}catch(e){}
+if(!S)S=seed();
+const save=()=>{try{localStorage.setItem('ms1',JSON.stringify(S))}catch(e){}};
+let view=(location.hash||'#home').slice(1),sel={doc:null,date:'',time:'',pri:'Normal'},flt={q:'',sp:'',ho:''},af={q:'',pri:'',st:'',date:''};
+const $=id=>document.getElementById(id);
+const me=()=>S.users.find(u=>u.id===S.session);
+const doc=id=>S.docs.find(d=>d.id==id)||{name:'Unknown',spec:'',hosp:''};
+const usr=id=>(S.users.find(u=>u.id===id)||{name:'Unknown'}).name;
+const e=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(m){const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),2800)}
+function go(v){view=v;location.hash=v;render();scrollTo(0,0)}
+function log(a){S.audit.unshift({t:Date.now(),by:me()?me().name:'system',a});S.audit=S.audit.slice(0,30)}
+const sortQ=a=>[...a].sort((x,y)=>PR[x.pri]-PR[y.pri]||(x.date+x.time).localeCompare(y.date+y.time)||x.id-y.id);
+const active=a=>a.st!=='CANCELLED';
+const taken=(did,date,time)=>S.appts.some(a=>a.did==did&&a.date===date&&a.time===time&&active(a));
+const pill=p=>`<span class="pill ${p}">${p}</span>`;
+const stp=s=>`<span class="pill">${s[0]+s.slice(1).toLowerCase()}</span>`;
+const today=()=>iso(new Date());
+const upcoming=a=>a.date>=today()&&a.st!=='COMPLETED'&&a.st!=='CANCELLED';
+function nav(){const u=me();const L=[['home','Home'],['doctors','Doctors'],['book','Book Appointment']];
+if(u&&u.role==='PATIENT')L.push(['appts','My Appointments'],['dash','Dashboard']);
+if(u&&u.role==='DOCTOR')L.push(['dash','Doctor Dashboard']);
+if(u&&u.role==='ADMIN')L.push(['dash','Admin Dashboard']);
+if(u)L.push(['profile','Profile']);else L.push(['login','Login'],['register','Register']);
+$('nav').innerHTML=`<b onclick="go('home')">Medi<i>Schedule</i></b>`+L.map(l=>`<a class="${view===l[0]?'on':''}" onclick="go('${l[0]}')" tabindex="0" onkeydown="if(event.key==='Enter')go('${l[0]}')">${l[1]}</a>`).join('')+(u?`<a onclick="logout()" tabindex="0">Log out</a>`:'')}
+function logout(){S.session=null;save();toast('You have been logged out.');go('home')}
+const EM='<div class="emerg"><b>Medical emergency?</b> Call your local emergency services now. Do not wait for an online appointment. Priority labels here are scheduling categories, not medical diagnoses.</div>';
+function guard(roles){const u=me();if(!u){$('app').innerHTML=`<h1>Please log in</h1><p class="sub">You need an account to use this page.</p><button class="btn" onclick="go('login')">Go to login</button>`;return false}
+if(roles&&!roles.includes(u.role)){$('app').innerHTML=`<h1>Access denied</h1><p class="sub">Your role (${u.role.toLowerCase()}) cannot open this page.</p><button class="btn" onclick="go('home')">Back home</button>`;return false}return true}
+function render(){nav();const f={home,doctors,book,appts,dash,login,register,profile}[view];if(!f){$('app').innerHTML='<h1>Page not found</h1><button class="btn" onclick="go(\'home\')">Back home</button>';return}f()}
+function home(){const feat=S.docs.filter(d=>d.active).slice(0,3);
+$('app').innerHTML=`<h1>Appointments scheduled by need, then by time.</h1>
+<p class="sub">MediSchedule orders each doctor’s queue as Urgent first, High second and Normal third. Staff can review and change any decision, and every change is logged.</p>
+<p><button class="btn" onclick="go('book')">Book Appointment</button> <button class="btn alt" onclick="go('doctors')">Find a doctor</button></p>${EM}
+<h2>Featured doctors</h2><div class="grid">${feat.map(d=>`<div class="card"><h3>${e(d.name)}</h3>${e(d.spec)}<br><span class="sub">${e(d.hosp)}</span><p><button class="btn sm" onclick="pick(${d.id})">Book</button></p></div>`).join('')}</div>
+<h2>Specialties</h2><div class="grid">${SPEC.map(s=>`<div class="card"><h3>${s}</h3><a href="#doctors" onclick="flt.sp='${s}'">See doctors</a></div>`).join('')}</div>
+<h2>How booking works</h2><ol class="steps"><li><h3>Choose a doctor</h3>Search by name, specialty or hospital.</li><li><h3>Pick a slot and priority</h3>Only free future slots are shown.</li><li><h3>Confirm</h3>The server checks again and gives you an appointment ID.</li></ol>
+<h2>What priority means</h2><div class="grid"><div class="card"><span class="pill Urgent">Urgent</span><p>Seen first in the queue. Use when you need care soon.</p></div><div class="card"><span class="pill High">High</span><p>Second in the queue. Use for worsening symptoms.</p></div><div class="card"><span class="pill Normal">Normal</span><p>Third in the queue. Routine visits and check-ups.</p></div></div>
+<p class="sub">Doctors and administrators can review and override priorities. An override never removes your booking.</p>`}
+function doctors(){const l=S.docs.filter(d=>d.active&&d.name.toLowerCase().includes(flt.q.toLowerCase())&&(!flt.sp||d.spec===flt.sp)&&(!flt.ho||d.hosp===flt.ho));
+$('app').innerHTML=`<h1>Doctors</h1><div class="row"><div><label for="q">Search by name</label><input id="q" value="${e(flt.q)}" oninput="flt.q=this.value;doctorsList()"></div>
+<div><label for="sp">Specialty</label><select id="sp" onchange="flt.sp=this.value;doctorsList()"><option value="">All</option>${SPEC.map(s=>`<option ${flt.sp===s?'selected':''}>${s}</option>`).join('')}</select></div>
+<div><label for="ho">Hospital</label><select id="ho" onchange="flt.ho=this.value;doctorsList()"><option value="">All</option>${HOSP.map(s=>`<option ${flt.ho===s?'selected':''}>${s}</option>`).join('')}</select></div></div><div id="dl" style="margin-top:16px"></div>`;doctorsList()}
+function doctorsList(){const l=S.docs.filter(d=>d.active&&d.name.toLowerCase().includes(flt.q.toLowerCase())&&(!flt.sp||d.spec===flt.sp)&&(!flt.ho||d.hosp===flt.ho));
+const D=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+$('dl').innerHTML=l.length?`<div class="grid">${l.map(d=>`<div class="card"><h3>${e(d.name)} <span class="sub">#${d.id}</span></h3>${e(d.spec)} · ${e(d.hosp)}<br>${e(d.qual)}, ${d.exp} years<br>Fee ${d.fee}<br>Days: ${d.days.map(x=>D[x]).join(', ')}<br>Slots: ${d.slots.join(', ')}<p><button class="btn sm" onclick="pick(${d.id})">Book this doctor</button></p></div>`).join('')}</div>`:'<div class="empty">No doctors match your search. Clear a filter to see more.</div>'}
+function pick(id){sel={doc:id,date:'',time:'',pri:'Normal'};go('book')}
+function book(){if(!guard(['PATIENT']))return;const d=sel.doc?doc(sel.doc):null;
+$('app').innerHTML=`<h1>Book an appointment</h1>${EM}<label for="bd">Doctor</label><select id="bd" onchange="sel.doc=+this.value||null;sel.date='';sel.time='';book()"><option value="">Select a doctor</option>${S.docs.filter(x=>x.active).map(x=>`<option value="${x.id}" ${sel.doc==x.id?'selected':''}>${e(x.name)} — ${e(x.spec)}, ${e(x.hosp)}</option>`).join('')}</select>
+${d?`<label for="dt">Date</label><input type="date" id="dt" min="${today()}" value="${sel.date}" onchange="sel.date=this.value;sel.time='';book()">
+<div id="sl"></div><label for="pr">Priority</label><select id="pr" onchange="sel.pri=this.value"><option ${sel.pri==='Normal'?'selected':''}>Normal</option><option ${sel.pri==='High'?'selected':''}>High</option><option ${sel.pri==='Urgent'?'selected':''}>Urgent</option></select><p><button class="btn" onclick="confirmBook()">Confirm booking</button></p><div id="be" class="err" role="alert"></div>`:'<p class="sub">Choose a doctor to see free slots.</p>'}`;
+if(d&&sel.date){const dow=new Date(sel.date+'T00:00').getDay();$('sl').innerHTML=d.days.includes(dow)?`<label>Available times</label><div class="slots">${d.slots.map(t=>{const tk=taken(d.id,sel.date,t),past=sel.date===today()&&t<=new Date().toTimeString().slice(0,5);return`<button class="slot ${sel.time===t?'sel':''}" ${tk||past?'disabled':''} onclick="sel.time='${t}';book()">${t}</button>`}).join('')}</div>`:'<div class="empty">This doctor is not available on that day. Try another date.</div>'}}
+function createAppt(pid,did,date,time,pri){const d=S.docs.find(x=>x.id==did);
+if(!d||!d.active)return'Doctor not found or inactive.';if(!(pri in PR))return'Invalid priority.';if(!date||!time)return'Choose a date and time.';
+if(new Date(date+'T'+time)<=new Date())return'Appointments cannot be in the past.';
+if(!d.days.includes(new Date(date+'T00:00').getDay())||!d.slots.includes(time))return'That slot is not part of the doctor’s availability.';
+if(taken(did,date,time))return'That slot was just booked. Please choose another.';
+const a={id:S.nid++,pid,did:+did,date,time,pri,st:'PENDING',created:Date.now(),reason:''};S.appts.push(a);save();return a}
+function confirmBook(){const r=createAppt(S.session,sel.doc,sel.date,sel.time,sel.pri);if(typeof r==='string'){$('be').textContent=r;return}
+$('app').innerHTML=`<h1>Booking confirmed</h1><div class="card"><h3>Appointment ID: ${r.id}</h3>${e(doc(r.did).name)}, ${e(doc(r.did).hosp)}<br>${r.date} at ${r.time}<br>Priority: ${pill(r.pri)} Status: ${stp(r.st)}</div><p><button class="btn" onclick="go('appts')">View my appointments</button></p>`;sel={doc:null,date:'',time:'',pri:'Normal'}}
+function appts(){if(!guard(['PATIENT']))return;
+$('app').innerHTML=`<h1>My appointments</h1><div class="row"><div><label for="aq">Search</label><input id="aq" value="${e(af.q)}" oninput="af.q=this.value;apList()"></div><div><label for="ad">Date</label><input type="date" id="ad" value="${af.date}" onchange="af.date=this.value;apList()"></div>
+<div><label for="ap">Priority</label><select id="ap" onchange="af.pri=this.value;apList()"><option value="">All</option><option>Urgent</option><option>High</option><option>Normal</option></select></div>
+<div><label for="as">Status</label><select id="as" onchange="af.st=this.value;apList()"><option value="">All</option><option>PENDING</option><option>CONFIRMED</option><option>COMPLETED</option><option>CANCELLED</option></select></div></div><div id="al" style="margin-top:16px"></div>`;apList()}
+function rows(l,mode){return`<div class="tw"><table><thead><tr><th>ID</th><th>${mode==='doc'?'Patient':'Doctor'}</th><th>Hospital</th><th>Date</th><th>Time</th><th>Priority</th><th>Status</th><th>Booked</th><th>Actions</th></tr></thead><tbody>${l.map(a=>`<tr><td>${a.id}</td><td>${e(mode==='doc'?usr(a.pid):doc(a.did).name+' ('+doc(a.did).spec+')')}</td><td>${e(doc(a.did).hosp)}</td><td>${a.date}</td><td>${a.time}</td><td>${pill(a.pri)}</td><td>${stp(a.st)}${a.reason?'<br><small>'+e(a.reason)+'</small>':''}</td><td>${new Date(a.created).toLocaleDateString()}</td><td>${actions(a,mode)}</td></tr>`).join('')}</tbody></table></div>`}
+function actions(a,mode){const u=me();let h='';
+if(mode==='pat'&&['PENDING','CONFIRMED'].includes(a.st)&&a.date>=today())h+=`<button class="btn sm red" onclick="cancel(${a.id})">Cancel</button>`;
+if(mode==='doc'||mode==='adm'){if(a.st==='PENDING')h+=`<button class="btn sm" onclick="setSt(${a.id},'CONFIRMED')">Confirm</button> `;if(['PENDING','CONFIRMED'].includes(a.st))h+=`<button class="btn sm alt" onclick="setSt(${a.id},'COMPLETED')">Complete</button> <button class="btn sm red" onclick="cancel(${a.id})">Cancel</button>`}
+if(mode==='adm'&&active(a)&&a.st!=='COMPLETED')h+=` <select aria-label="Override priority" onchange="override(${a.id},this.value)" style="width:auto;padding:3px"><option value="">Priority…</option><option>Urgent</option><option>High</option><option>Normal</option></select>`;return h||'—'}
+function apList(){let l=S.appts.filter(a=>a.pid===S.session);
+l=l.filter(a=>(!af.pri||a.pri===af.pri)&&(!af.st||a.st===af.st)&&(!af.date||a.date===af.date)&&(!af.q||(doc(a.did).name+doc(a.did).spec+doc(a.did).hosp+a.id).toLowerCase().includes(af.q.toLowerCase())));
+$('al').innerHTML=l.length?rows(sortQ(l),'pat'):'<div class="empty">No appointments found. <a onclick="go(\'book\')" href="#book">Book your first one.</a></div>'}
+function cancel(id){const a=S.appts.find(x=>x.id===id),u=me();if(!a||(u.role==='PATIENT'&&a.pid!==u.id)||(u.role==='DOCTOR'&&a.did!==u.doctorId)){toast('Not allowed.');return}
+const why=u.role==='PATIENT'?'Cancelled by patient':prompt('Reason for cancelling?','Cancelled by staff');if(why===null||!confirm('Cancel appointment '+id+'?'))return;
+a.st='CANCELLED';a.reason=why;log('Cancelled appointment '+id);save();toast('Appointment cancelled.');render()}
+function setSt(id,st){const a=S.appts.find(x=>x.id===id),u=me();if(!a||(u.role==='DOCTOR'&&a.did!==u.doctorId)||u.role==='PATIENT'){toast('Not allowed.');return}a.st=st;log('Appointment '+id+' set to '+st);save();toast('Status updated.');render()}
+function override(id,p){if(!p)return;const a=S.appts.find(x=>x.id===id);const old=a.pri;a.pri=p;log('Priority override on '+id+': '+old+' to '+p);save();toast('Priority updated and logged.');render()}
+function dash(){if(!guard())return;const u=me();
+if(u.role==='PATIENT'){const m=S.appts.filter(a=>a.pid===u.id);$('app').innerHTML=`<h1>Welcome, ${e(u.name)}</h1><div class="grid">${[['Total',m.length],['Upcoming',m.filter(upcoming).length],['Completed',m.filter(a=>a.st==='COMPLETED').length],['Cancelled',m.filter(a=>a.st==='CANCELLED').length]].map(x=>`<div class="card"><div class="stat">${x[1]}</div>${x[0]} appointments</div>`).join('')}</div><p><button class="btn" onclick="go('book')">Book Appointment</button> <button class="btn alt" onclick="go('appts')">My appointments</button></p>${EM}`}
+else if(u.role==='DOCTOR'){const m=S.appts.filter(a=>a.did===u.doctorId);const t=m.filter(a=>a.date===today()&&active(a)),up=m.filter(upcoming);
+$('app').innerHTML=`<h1>${e(u.name)}</h1><div class="grid"><div class="card"><div class="stat">${t.length}</div>Today</div><div class="card"><div class="stat">${up.length}</div>Upcoming</div></div><h2>Priority queue</h2>${up.length?rows(sortQ(up),'doc'):'<div class="empty">No upcoming appointments.</div>'}<h2>Today’s schedule</h2>${t.length?rows(sortQ(t).sort((a,b)=>a.time.localeCompare(b.time)),'doc'):'<div class="empty">Nothing scheduled today.</div>'}`}
+else{const m=S.appts,by=k=>Object.entries(m.reduce((o,a)=>(o[a[k]]=(o[a[k]]||0)+1,o),{})).map(x=>`${x[0]}: <b>${x[1]}</b>`).join('<br>')||'None';
+$('app').innerHTML=`<h1>Administrator dashboard</h1><div class="grid">${[['Patients',S.users.filter(x=>x.role==='PATIENT').length],['Doctors',S.docs.length],['Appointments',m.length],['Upcoming',m.filter(upcoming).length]].map(x=>`<div class="card"><div class="stat">${x[1]}</div>${x[0]}</div>`).join('')}<div class="card"><h3>By priority</h3>${by('pri')}</div><div class="card"><h3>By status</h3>${by('st')}</div></div>
+<h2>All appointments (priority queue order)</h2>${m.length?rows(sortQ(m).map(a=>({...a})),'adm').replace(/<td>(\d+)<\/td><td>/,'<td>$1</td><td>'):'<div class="empty">No appointments yet.</div>'}
+<h2>Doctor availability</h2><div class="tw"><table><thead><tr><th>Doctor</th><th>Slots</th><th>Status</th><th></th></tr></thead><tbody>${S.docs.map(d=>`<tr><td>${e(d.name)}</td><td>${d.slots.join(', ')}</td><td>${d.active?'Active':'Inactive'}</td><td><button class="btn sm alt" onclick="toggleDoc(${d.id})">${d.active?'Deactivate':'Activate'}</button></td></tr>`).join('')}</tbody></table></div>
+<h2>Users</h2><div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead><tbody>${S.users.map(x=>`<tr><td>${e(x.name)}</td><td>${e(x.email)}</td><td>${x.role}</td></tr>`).join('')}</tbody></table></div>
+<h2>Audit log</h2>${S.audit.length?'<ul>'+S.audit.map(x=>`<li>${new Date(x.t).toLocaleString()} — ${e(x.by)}: ${e(x.a)}</li>`).join('')+'</ul>':'<div class="empty">No changes logged yet.</div>'}`}}
+function toggleDoc(id){const d=S.docs.find(x=>x.id===id);d.active=!d.active;log((d.active?'Activated ':'Deactivated ')+d.name);save();render()}
+function login(){$('app').innerHTML=`<h1>Log in</h1><label for="le">Email</label><input id="le" type="email" autocomplete="username"><label for="lp">Password</label><input id="lp" type="password" autocomplete="current-password"><div id="lr" class="err" role="alert"></div><p><button class="btn" onclick="doLogin()">Log in</button></p>
+<div class="card"><h3>Demo accounts (fictional)</h3>patient@demo.test / Patient@123<br>doctor@demo.test / Doctor@123<br>admin@demo.test / Admin@123</div>`}
+function doLogin(){const u=S.users.find(x=>x.email===$('le').value.trim().toLowerCase()&&x.pw===$('lp').value);if(!u){$('lr').textContent='Email or password is incorrect.';return}S.session=u.id;save();toast('Welcome, '+u.name);go('dash')}
+function register(){$('app').innerHTML=`<h1>Create a patient account</h1><p class="sub">Doctor and administrator accounts are created by an administrator only.</p><label for="rn">Full name</label><input id="rn"><label for="re">Email</label><input id="re" type="email"><label for="rp">Password (8+ characters, with a number)</label><input id="rp" type="password"><div id="rr" class="err" role="alert"></div><p><button class="btn" onclick="doReg()">Register</button></p>`}
+function doReg(){const n=$('rn').value.trim(),m=$('re').value.trim().toLowerCase(),p=$('rp').value;let x='';
+if(n.length<2)x='Enter your full name.';else if(!/^\S+@\S+\.\S+$/.test(m))x='Enter a valid email.';else if(p.length<8||!/\d/.test(p))x='Password needs 8+ characters and a number.';else if(S.users.some(u=>u.email===m))x='That email is already registered.';
+if(x){$('rr').textContent=x;return}S.users.push({id:S.uid,name:n,email:m,pw:p,role:'PATIENT'});S.session=S.uid++;save();toast('Account created.');go('dash')}
+function profile(){if(!guard())return;const u=me();$('app').innerHTML=`<h1>Profile</h1><label for="pn">Full name</label><input id="pn" value="${e(u.name)}"><label>Email</label><input value="${e(u.email)}" disabled><label>Role</label><input value="${u.role}" disabled><p><button class="btn" onclick="saveProf()">Save changes</button></p>`}
+function saveProf(){const n=$('pn').value.trim();if(n.length<2){toast('Enter a valid name.');return}me().name=n;save();toast('Profile saved.');render()}
+addEventListener('hashchange',()=>{view=location.hash.slice(1)||'home';render()});
+render();
+</script>
+</body>
+</html>
